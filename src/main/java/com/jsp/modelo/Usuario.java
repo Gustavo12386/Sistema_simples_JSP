@@ -1,6 +1,7 @@
 package com.jsp.modelo;
 
 import java.sql.Date;
+import java.util.List;
 
 public class Usuario {
  
@@ -11,12 +12,13 @@ public class Usuario {
 	private String email;		
 	private String password;		
 	private String login;	
-	private boolean ativo;	
+	private boolean ativo;
+	
+	private List<Papel> papeis;
 	
 	public Usuario() {
 		super();
-	}
-	
+	}	
 	
 	public Usuario(String nome, String cpf, Date dataNascimento, String email, String password, String login,
 			boolean ativo) {
@@ -29,9 +31,6 @@ public class Usuario {
 		this.login = login;
 		this.ativo = ativo;
 	}
-
-
-
 
 	public Long getId() {
 		return id;
@@ -80,8 +79,14 @@ public class Usuario {
 	}
 	public void setAtivo(boolean ativo) {
 		this.ativo = ativo;
+	}	
+	public List<Papel> getPapeis() {
+		return papeis;
 	}
-	
+	public void setPapeis(List<Papel> papeis) {
+		this.papeis = papeis;
+	}
+
 	@Override
 	public String toString() {
 		return "Usuario [nome=" + nome + ", cpf=" + cpf + ", dataNascimento=" + dataNascimento + ", email=" + email

@@ -7,10 +7,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.sql.SQLException;
+
+import com.jsp.controle.seguranca.Criptografia;
 import com.jsp.controle.util.ManipulacaoData;
+import com.jsp.dao.usuariodao.PapelDAO;
 import com.jsp.dao.usuariodao.UsuarioDAO;
+import com.jsp.modelo.Papel;
 import com.jsp.modelo.Usuario;
 
 /**
@@ -21,6 +26,7 @@ public class IndexControl extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private UsuarioDAO usuarioDAO;
+	private PapelDAO papelDAO;
     
     public IndexControl() {
         super();
@@ -29,6 +35,7 @@ public class IndexControl extends HttpServlet {
     
     public void init() {
 		usuarioDAO = new UsuarioDAO();
+		papelDAO = new PapelDAO();
 	}
 
 
@@ -61,13 +68,14 @@ public class IndexControl extends HttpServlet {
 
 	}
 	
-	protected void novoUsuario(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void novoUsuario(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 	    RequestDispatcher dispatcher = request.getRequestDispatcher("publica/publica-novo-usuario.jsp");
 	    dispatcher.forward(request, response);
 	}
 	
 	protected void gravarUsuario(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, SQLException {	
+			throws ServletException, IOException, SQLException, NoSuchAlgorithmException {	
 		
 		String nome = request.getParameter("nome");
 		String cpf = request.getParameter("cpf");
@@ -79,9 +87,16 @@ public class IndexControl extends HttpServlet {
 		ManipulacaoData manipulacaoData = new ManipulacaoData();
 		Date dataNascimento = manipulacaoData.converterStringData(data);
 		
-		Usuario usuario = new Usuario( nome, cpf, dataNascimento, email, password, login, false);
+		String senhaCriptografada = Criptografia.converterParaMD5(password);
+		
+		Usuario usuario = new Usuario( nome, cpf, dataNascimento, email, senhaCriptografada, password, false);
 
 		Usuario usuarioGravado = usuarioDAO.inserirUsuario(usuario);
+		
+        Papel papel = papelDAO.buscarPapelPorTipo("USER");
+		
+		papelDAO.atribuirPapelUsuario(papel, usuarioGravado);
+
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("publica/publica-novo-usuario.jsp");
 		request.setAttribute("mensagem", "Usuário cadastrado com sucesso");
